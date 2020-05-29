@@ -1,28 +1,47 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container">
+    <div class="row justify-content-center my-4" id="app">
+      <div class="col-4" id="temporaryNav">
+        Temporary navigation
+        <ul>
+          <li>
+            <router-link :to="{ name: 'Homepage' }">Homepage</router-link>
+          </li>
+          <hr />
+          <li>
+            <router-link :to="{ name: 'Login' }">Login</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'Register' }">Register</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'Forgot' }">Forgot</router-link>
+          </li>
+          <hr />
+          <li>
+            <router-link :to="{ name: 'Hall' }">Chat Hall</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'Chat', params: { userId: 'nikarashihatsu' } }">Chat</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'GroupChat', params: { groupId: 'hatsucorp' } }">Group Chat</router-link>
+          </li>
+          <hr />
+          <li>
+            <router-link :to="{ name: 'Settings' }">Settings</router-link>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  export default {
+    name: 'App',
   }
-}
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
