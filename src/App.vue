@@ -41,7 +41,16 @@
 </template>
 
 <script>
+  // Firebase init
+  import './components/scripts/firebase';
+  import Auth from './components/scripts/auth';
+
   export default {
     name: 'App',
+    methods: {
+      register() { Auth.register() },
+      signIn() { Auth.signIn() },
+      signOut() { Auth.signOut() }
+    },
   }
 </script>
