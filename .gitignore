@@ -12,6 +12,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Firebase config file
+/src/components/scripts/firebase.js
+
 # Editor directories and files
 .idea
 .vscode
