@@ -47,6 +47,12 @@
 
   export default {
     name: 'App',
+    data() {
+      return {
+        user: Auth.user
+      }
+    },
+    
     methods: {
       register() { Auth.register() },
       signIn() { Auth.signIn() },
