@@ -47,7 +47,7 @@ const router = new Router({
       component: Hall
     },
     {
-      path: '/chat/:userId',
+      path: '/chat/:chatId',
       name: 'Chat',
       component: Chat
     },
