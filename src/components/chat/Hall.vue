@@ -22,25 +22,29 @@
       }
     },
     
+    // TODO: MAKE A FILTER, LIST IS CHAT IS BASED ON AUTHENTICATED USER
     mounted() {
       firebase.database().ref('chatroom').on('value', (snapshot) => {
         var filteredRooms = [];
+        var authenticatedUser = '';
 
         snapshot.forEach((data) => {
-          var template = {
-            receiver: data.val().receiver,
-            unread: 0
+          if(data.val().sender == authenticatedUser) {
+            var template = {
+              receiver: data.val().receiver,
+              unread: 0
+            }
+  
+            if(data.hasChild('messages')) {
+              var unread = data.val().messages.filter((d) => {
+                return d.read == 0;
+              });
+  
+              template.unread = unread.length;
+            }
+  
+            filteredRooms.push(template);
           }
-
-          if(data.hasChild('messages')) {
-            var unread = data.val().messages.filter((d) => {
-              return d.read == 0;
-            });
-
-            template.unread = unread.length;
-          }
-
-          filteredRooms.push(template);
         });
 
         this.rooms = filteredRooms;
