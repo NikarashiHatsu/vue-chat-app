@@ -22,7 +22,7 @@
       }
     },
     
-    // TODO: MAKE A FILTER, LIST IS CHAT IS BASED ON AUTHENTICATED USER
+    // TODO: MAKE AUTHENTICATED USER VARIABLE VALUE AS FIREBASE AUTHENTICATED USER
     mounted() {
       firebase.database().ref('chatroom').on('value', (snapshot) => {
         var filteredRooms = [];
