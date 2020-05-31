@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     Hall page
     <!-- Hall content here -->
     <!--
@@ -11,7 +11,40 @@
 </template>
 
 <script>
+  import firebase from 'firebase';
+
   export default {
-    name: 'Chat'
+    name: 'Chat',
+    
+    data() {
+      return {
+        rooms: []
+      }
+    },
+    
+    mounted() {
+      firebase.database().ref('chatroom').on('value', (snapshot) => {
+        var filteredRooms = [];
+
+        snapshot.forEach((data) => {
+          var template = {
+            receiver: data.val().receiver,
+            unread: 0
+          }
+
+          if(data.hasChild('messages')) {
+            var unread = data.val().messages.filter((d) => {
+              return d.read == 0;
+            });
+
+            template.unread = unread.length;
+          }
+
+          filteredRooms.push(template);
+        });
+
+        this.rooms = filteredRooms;
+      });
+    }
   }
 </script>
