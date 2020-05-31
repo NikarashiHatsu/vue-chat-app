@@ -22,7 +22,7 @@
             <router-link :to="{ name: 'Hall' }">Chat Hall</router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'Chat', params: { userId: 'nikarashihatsu' } }">Chat</router-link>
+            <router-link :to="{ name: 'Chat', params: { chatId: 'chat_1' } }">Chat</router-link>
           </li>
           <li>
             <router-link :to="{ name: 'GroupChat', params: { groupId: 'hatsucorp' } }">Group Chat</router-link>
