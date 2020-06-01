@@ -24,6 +24,39 @@
     
     // TODO: MAKE AUTHENTICATED USER VARIABLE VALUE AS FIREBASE AUTHENTICATED USER
     mounted() {
+      // CHATGROUP
+      firebase.database().ref('chatgroup').on('value', (snapshot) => {
+        var filteredGroups = [];
+        var authenticatedUser = 'aghitsnidallah';
+
+        snapshot.forEach((data) => {
+          var users = Object.entries(data.val().users);
+          var template = {
+            group: '',
+            unread: 0
+          }
+          
+          // Decide a group name
+          users.forEach((key) => {
+            if(key[1] === authenticatedUser) {
+              template.group = data.key;
+            }
+          });
+
+          // Count unread message
+          if(data.hasChild('messages')) {
+            var unread = data.val().messages.filter((d) => {
+              return d.read === 0;
+            });
+
+            template.unread = unread.length;
+          }
+
+          filteredGroups.push(template);
+        });
+      });
+      
+      // CHATROOM
       firebase.database().ref('chatroom').on('value', (snapshot) => {
         var filteredRooms = [];
         var authenticatedUser = '';
