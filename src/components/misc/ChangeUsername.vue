@@ -62,6 +62,7 @@
       changeUsername() {
         if(this.user.username != '') {
           var user = firebase.auth().currentUser;
+          
           user.updateProfile({
             displayName: this.user.username
           }).then(() => {
