@@ -35,12 +35,12 @@
               Change username
             </span>
           </router-link>
-          <div class="list-group-item">
+          <router-link :to="{ name: 'ChangeEmail' }" class="list-group-item btn btn-outline-primary text-left">
             <i class="fas fa-envelope"></i>
             <span class="ml-3">
               Change email
             </span>
-          </div>
+          </router-link>
           <div class="list-group-item">
             <i class="fas fa-lock"></i>
             <span class="ml-3">
