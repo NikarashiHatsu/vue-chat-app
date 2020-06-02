@@ -1,70 +1,111 @@
 <template>
-  <div class="container-md">
-    <div class="row">
-      <!-- col 1 -->
-      <div class="col-md-4"></div>
-      <!-- col 2 -->
-      <div class="col-md-4 form-box">
-            <h4 class="card-title text-center m-0 login">Create Account</h4>
-            <p class="divider-text text-center">
-                <span>Get started with your free account</span>
-            </p>
-            <form action="" method="POST">
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">@</div>
-                    </div>
-                    <input class="form-control" type="email" name="email" placeholder="Email address">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">F</div>
-                    </div>
-                    <input class="form-control" type="text" name="nama" placeholder="Full name">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">P</div>
-                    </div>
-                    <input class="form-control" type="password" name="password" placeholder="Create Password">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">P</div>
-                    </div>
-                    <input class="form-control" type="password" name="r_password" placeholder="Repeat password">
-                  </div>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary login btn-block" name="register" type="submit">Create Account</button>
-                </div>
-                <p class="text-center">
-                  Have an account? <a href="#">Log In</a> 
-                </p>                                                                 
-            </form>
-      </div>
-      <!-- col 3 -->
-      <div class="col-md-3"></div>
-    </div>
-
-    <div class="row mt-3">
-       <div class="col-sm-12 text-center justify-content-center">
-            <p>Copyright &copy; | Kuliah Barbar</p>
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <i class="fab fa-wpforms"></i>
+          <span class="ml-3">
+            Register page
+          </span>
         </div>
-     </div>
-    
+        <div class="card-body">
+          <form @submit="$event.preventDefault()">
+            <div class="form-group">
+              <label for="email">
+                Email address
+              </label>
+              <input v-model="user.email" type="email" id="email" class="form-control" placeholder="johndoe@example.com" required>
+              <small class="form-text text-muted">You will use your email to log in</small>
+            </div>
+            <div class="form-group">
+              <label for="username">
+                Username
+              </label>
+              <input v-model="user.username" type="text" id="username" class="form-control" placeholder="John Doe" required>
+              <small class="form-text text-muted">Use your desired username</small>
+            </div>
+            <div class="form-group">
+              <label for="password">
+                Password
+              </label>
+              <input v-model="user.password" type="password" id="password" class="form-control" placeholder="********" required>
+              <small class="form-text text-muted">As a recommendation, please use 8 character long password</small>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">
+                Confirm password
+              </label>
+              <input v-model="user.confirmPassword" type="password" id="confirmPassword" class="form-control" placeholder="********" required>
+              <small class="form-text text-muted">I'm pretty sure you still remember password you typed above</small>
+            </div>
+            <button @click="register" type="submit" class="btn btn-primary">
+              Register me in!
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+  import firebase from 'firebase';
+
   export default {
-    name: 'Register'
+    name: 'Register',
+
+    data() {
+      return {
+        user: {
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        }
+      }
+    },
+
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user != null) {
+          user.updateProfile({
+            displayName: this.user.username
+          });
+
+          this.$router.push({ name: 'Homepage' });
+        }
+      });
+    },
+
+    methods: {
+      register() {
+        const user = this.user;
+        
+        if((user.username != '' && user.email != '' && user.password != '' && user.confirmPassword != '') && (user.password === user.confirmPassword)) {
+          firebase.auth().createUserWithEmailAndPassword(user.email, user.password).catch((err) => {
+            var errCode = err.code;
+            var errMsg = err.message;
+
+            switch (errCode) {
+              case 'auth/email-already-in-use':
+                alert('Your email is already used. Is it you or your doppelganger?');
+                break;
+            
+              case 'auth/invalid-email':
+                alert('Your email address is not valid. Use your usual email address please.');
+                break;
+
+              case 'auth/weak-password':
+                alert('Seriously? With that kind of password? Make stronger one!');
+                break;
+
+              default:
+                alert(errMsg);
+                break;
+            }
+          });
+        }
+      }
+    }
   }
 </script>

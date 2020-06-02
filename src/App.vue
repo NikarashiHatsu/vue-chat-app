@@ -1,41 +1,47 @@
 <template>
-  <div class="container">
-    <div class="row justify-content-center my-4" id="app">
-      <div class="col-4" id="temporaryNav">
-        Temporary navigation
-        <ul>
-          <li>
-            <router-link :to="{ name: 'Homepage' }">Homepage</router-link>
-          </li>
-          <hr />
-          <li>
-            <router-link :to="{ name: 'Login' }">inLog</router-link>
-          </li>
-          <li>
-            <router-link :to="{ name: 'Register' }">Register</router-link>
-          </li>
-          <li>
-            <router-link :to="{ name: 'Forgot' }">Forgot</router-link>
-          </li>
-          <hr />
-          <li>
-            <router-link :to="{ name: 'Hall' }">Chat Hall</router-link>
-          </li>
-          <li>
-            <router-link :to="{ name: 'Chat', params: { chatId: 'chat_1' } }">Chat</router-link>
-          </li>
-          <li>
-            <router-link :to="{ name: 'GroupChat', params: { groupId: 'group_1' } }">Group Chat</router-link>
-          </li>
-          <hr />
-          <li>
-            <router-link :to="{ name: 'Settings' }">Settings</router-link>
-          </li>
-        </ul>
+  <div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+      <!-- Signed out navbar -->
+      <div class="container" id="signedOutNavbar">
+        <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Firebase Chat App</router-link>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigations">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navigations">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <router-link class="nav-link" :to="{ name: 'Login' }">Login</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" :to="{ name: 'Register' }">Register</router-link>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <router-view></router-view>
+
+      <!-- Signed in navbar -->
+      <div class="container" id="signedInNavbar">
+        <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Ngetes</router-link>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigations">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navigations">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <router-link class="nav-link" :to="{ name: 'Settings' }">Settings</router-link>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </nav>
+    <div class="container">
+      <div class="row my-4">
+        <div class="col">
+          <router-view></router-view>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -43,20 +49,28 @@
 <script>
   // Firebase init
   import './components/scripts/firebase';
-  import Auth from './components/scripts/auth';
+  import firebase from 'firebase';
 
   export default {
     name: 'App',
-    data() {
-      return {
-        user: Auth.user
-      }
-    },
-    
-    methods: {
-      register() { Auth.register() },
-      signIn() { Auth.signIn() },
-      signOut() { Auth.signOut() }
+
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {        
+        var navSignedIn = document.getElementById('signedInNavbar');
+        var navSignedOut = document.getElementById('signedOutNavbar');
+
+        if(user == null) {
+          navSignedIn.classList.add('d-none');
+          navSignedIn.classList.remove('d-flex');
+          navSignedOut.classList.add('d-flex');
+          navSignedOut.classList.remove('d-none');
+        } else {
+          navSignedIn.classList.add('d-flex');
+          navSignedIn.classList.remove('d-none');
+          navSignedOut.classList.add('d-none');
+          navSignedOut.classList.remove('d-flex');
+        }
+      });
     },
   }
 </script>

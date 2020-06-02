@@ -9,7 +9,11 @@ import Forgot from './components/auth/Forgot'
 import Hall from './components/chat/Hall'
 import Chat from './components/chat/Chat'
 import GroupChat from './components/chat/GroupChat'
+
 import Settings from './components/misc/Settings'
+import ChangeUsername from './components/misc/ChangeUsername'
+import ChangeEmail from './components/misc/ChangeEmail'
+import ChangePassword from './components/misc/ChangePassword'
 
 import 'jquery'
 import 'popper.js'
@@ -62,6 +66,21 @@ const router = new Router({
       name: 'Settings',
       component: Settings
     },
+    {
+      path: '/settings/change_username',
+      name: 'ChangeUsername',
+      component: ChangeUsername
+    },
+    {
+      path: '/settings/change_email',
+      name: 'ChangeEmail',
+      component: ChangeEmail
+    },
+    {
+      path: '/settings/change_password',
+      name: 'ChangePassword',
+      component: ChangePassword
+    }
   ]
 });
 
