@@ -1,19 +1,4 @@
 <template>
-  <!-- Login content here -->
-  <!--
-    TODO:
-    1. Make a form validation
-    2. Make an alert if:
-      a. User is failed to login
-      b. Email is already registered
-      c. Either the email or the password is wrong
-      d. Firebase is having a problem
-    DONE:
-    1. Make a login form in this file
-    2. Login form consists:
-      a. Email
-      b. Password
-  -->
   <div class="row justify-content-center">
     <div class="col-12 col-lg-6">
       <div class="card">
@@ -29,18 +14,18 @@
               <label for="email">
                 Email address
               </label>
-              <input type="email" id="email" class="form-control" placeholder="johndoe@example.com">
+              <input v-model="user.email" type="email" id="email" class="form-control" placeholder="johndoe@example.com" required>
               <small class="form-text text-muted">You registered your email to me, be responsible to your own email</small>
             </div>
             <div class="form-group">
               <label for="password">
                 Password
               </label>
-              <input type="password" id="password" class="form-control" placeholder="********">
+              <input v-model="user.password" type="password" id="password" class="form-control" placeholder="********" required>
               <small class="form-text text-muted">Please don't forget it... Please don't forget it...</small>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-primary">
+              <button @click="login" type="submit" class="btn btn-primary">
                 Bring me to your world!
               </button>
               <small>
@@ -55,7 +40,60 @@
 </template>
 
 <script>
+  import firebase from 'firebase';
+
   export default {
-    name: 'Login'
+    name: 'Login',
+    data() {
+      return {
+        user: {
+          email: '',
+          password: ''
+        }
+      }
+    },
+
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user != null) {
+          this.$router.push({ name: 'Homepage' });
+        }
+      });
+    },
+
+    methods: {
+      login() {
+        var user = this.user;
+
+        if(user.email != '' && user.password != '') {
+          firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch((err) => {
+            var errCode = err.code;
+            var errMsg = err.message;
+
+            switch (errCode) {
+              case 'auth/invalid-email':
+                alert('Your email address is not valid. Use your usual email address please.');
+                break;
+
+              case 'auth/user-disabled':
+                alert('Your email has been disabled. Did you violate our terms and conditions?');
+                break;
+
+              case 'auth/user-not-found':
+                alert('Your credential is not found. Have you registered already?');
+                break;
+
+              case 'auth/wrong-password':
+                alert('Wrong password! Have you forgotten it?');
+                break;
+
+              default:
+                alert(errMsg);
+                break;
+            }
+          });
+        }
+      }
+    }
   }
 </script>
