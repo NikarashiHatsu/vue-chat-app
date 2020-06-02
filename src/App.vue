@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container">
+
+      <!-- Signed out navbar -->
+      <div class="container" id="signedOutNavbar">
         <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Firebase Chat App</router-link>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigations">
           <i class="fas fa-bars"></i>
@@ -14,12 +16,25 @@
             <li class="nav-item">
               <router-link class="nav-link" :to="{ name: 'Register' }">Register</router-link>
             </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Signed in navbar -->
+      <div class="container" id="signedInNavbar">
+        <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Ngetes</router-link>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigations">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navigations">
+          <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'Settings' }">Settings</router-link>
+              <router-link class="nav-link" :to="{ name: 'Settings' }">{{ user.username }}</router-link>
             </li>
           </ul>
         </div>
       </div>
+
     </nav>
     <div class="container">
       <div class="row my-4">
@@ -34,20 +49,38 @@
 <script>
   // Firebase init
   import './components/scripts/firebase';
-  import Auth from './components/scripts/auth';
+  import firebase from 'firebase';
 
   export default {
     name: 'App',
+
     data() {
       return {
-        user: Auth.user
+        user: {
+          username: ''
+        }
       }
     },
-    
-    methods: {
-      register() { Auth.register() },
-      signIn() { Auth.signIn() },
-      signOut() { Auth.signOut() }
+
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        var navSignedIn = document.getElementById('signedInNavbar');
+        var navSignedOut = document.getElementById('signedOutNavbar');
+
+        if(user == null) {
+          navSignedIn.classList.add('d-none');
+          navSignedIn.classList.remove('d-flex');
+          navSignedOut.classList.add('d-flex');
+          navSignedOut.classList.remove('d-none');
+          this.user.username = '';
+        } else {
+          navSignedIn.classList.add('d-flex');
+          navSignedIn.classList.remove('d-none');
+          navSignedOut.classList.add('d-none');
+          navSignedOut.classList.remove('d-flex');
+          this.user.username = user.displayName;
+        }
+      });
     },
   }
 </script>
