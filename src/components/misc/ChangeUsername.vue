@@ -63,9 +63,11 @@
         var user = firebase.auth().currentUser;
         user.updateProfile({
           displayName: this.user.username
+        }).then(() => {
+          this.$router.push({ name: 'Homepage' });
+        }).catch((err) => {
+          alert(err);
         });
-
-        this.$router.push({ name: 'Homepage' });
       }
     }
   }
