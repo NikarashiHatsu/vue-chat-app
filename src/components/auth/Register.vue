@@ -1,22 +1,4 @@
 <template>
-  <!-- Register content here -->
-  <!--
-    TODO:
-    1. Make a form validation
-    2. Make an alert if:
-      a. User is successfully registered
-        i. Give them a link to login
-      b. User is failed to register
-      c. Email is already registered
-      d. Firebase is having a problem
-    DONE:
-    1. Make a registration form here
-    2. Registration form consists:
-      a. Email
-      b. Username
-      c. Password
-      d. Password confirmation
-  -->
   <div class="row justify-content-center">
     <div class="col-12 col-lg-6">
       <div class="card">
@@ -71,6 +53,7 @@
 
   export default {
     name: 'Register',
+
     data() {
       return {
         user: {
@@ -81,13 +64,19 @@
         }
       }
     },
-    mounted() {
-      var user = firebase.auth().currentUser;
 
-      if(user != null) {
-        this.$router.push({ name: 'Homepage' }); 
-      }
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user != null) {
+          user.updateProfile({
+            displayName: this.user.username
+          });
+
+          this.$router.push({ name: 'Homepage' });
+        }
+      });
     },
+
     methods: {
       register() {
         const user = this.user;
@@ -115,13 +104,6 @@
                 break;
             }
           });
-
-          firebase.database().ref('users').push({
-            email: user.email,
-            username: user.username
-          });
-          
-          this.$router.push({ name: 'Homepage' });
         }
       }
     }
