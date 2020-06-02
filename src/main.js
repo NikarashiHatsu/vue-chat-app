@@ -12,6 +12,7 @@ import GroupChat from './components/chat/GroupChat'
 
 import Settings from './components/misc/Settings'
 import ChangeUsername from './components/misc/ChangeUsername'
+import ChangeEmail from './components/misc/ChangeEmail'
 
 import 'jquery'
 import 'popper.js'
@@ -68,6 +69,11 @@ const router = new Router({
       path: '/settings/change_username',
       name: 'ChangeUsername',
       component: ChangeUsername
+    },
+    {
+      path: '/settings/change_email',
+      name: 'ChangeEmail',
+      component: ChangeEmail
     }
   ]
 });
