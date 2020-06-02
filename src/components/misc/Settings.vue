@@ -5,11 +5,9 @@
     1. All of the functionality
     DONE:
     1. User settings
-      a. Change user's alias
       b. Change user's profile picture
       c. Change user's email address
       d. Change user's password
-      e. Logout button
     2. Chat settings
       a. Change theme from light to dark or vice-versa
   -->
@@ -31,12 +29,12 @@
               {{ user.username }}
             </h5>
           </div>
-          <div class="list-group-item">
+          <router-link :to="{ name: 'ChangeUsername' }" class="list-group-item btn btn-outline-primary text-left">
             <i class="fas fa-user"></i>
             <span class="ml-3">
               Change username
             </span>
-          </div>
+          </router-link>
           <div class="list-group-item">
             <i class="fas fa-envelope"></i>
             <span class="ml-3">
@@ -98,11 +96,16 @@
     },
 
     mounted() {
-      firebase.auth().onAuthStateChanged((user) => {
+      var auth = firebase.auth();
+      var user = auth.currentUser
+
+      if(user != null) {
+        this.user.username = user.displayName;
+      }
+      
+      auth.onAuthStateChanged((user) => {
         if(user == null) {
           this.$router.push({ name: 'Homepage' });
-        } else {
-          this.user.username = user.displayName;
         }
       });
     },
