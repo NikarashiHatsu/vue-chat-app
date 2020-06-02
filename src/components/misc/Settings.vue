@@ -41,12 +41,12 @@
               Change email
             </span>
           </router-link>
-          <div class="list-group-item">
+          <router-link :to="{ name: 'ChangePassword' }" class="list-group-item btn btn-outline-primary text-left">
             <i class="fas fa-lock"></i>
             <span class="ml-3">
               Change password
             </span>
-          </div>
+          </router-link>
           <button @click="logout" class="list-group-item btn btn-outline-danger text-left">
             <i class="fas fa-sign-out-alt"></i>
             <span class="ml-3">
