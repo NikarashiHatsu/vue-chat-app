@@ -22,10 +22,10 @@
             <router-link :to="{ name: 'Hall' }">Chat Hall</router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'Chat', params: { userId: 'nikarashihatsu' } }">Chat</router-link>
+            <router-link :to="{ name: 'Chat', params: { chatId: 'chat_1' } }">Chat</router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'GroupChat', params: { groupId: 'hatsucorp' } }">Group Chat</router-link>
+            <router-link :to="{ name: 'GroupChat', params: { groupId: 'group_1' } }">Group Chat</router-link>
           </li>
           <hr />
           <li>
@@ -41,7 +41,22 @@
 </template>
 
 <script>
+  // Firebase init
+  import './components/scripts/firebase';
+  import Auth from './components/scripts/auth';
+
   export default {
     name: 'App',
+    data() {
+      return {
+        user: Auth.user
+      }
+    },
+    
+    methods: {
+      register() { Auth.register() },
+      signIn() { Auth.signIn() },
+      signOut() { Auth.signOut() }
+    },
   }
 </script>
