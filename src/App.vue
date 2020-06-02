@@ -55,7 +55,7 @@
     name: 'App',
 
     mounted() {
-      firebase.auth().onAuthStateChanged((user) => {
+      firebase.auth().onAuthStateChanged((user) => {        
         var navSignedIn = document.getElementById('signedInNavbar');
         var navSignedOut = document.getElementById('signedOutNavbar');
 
