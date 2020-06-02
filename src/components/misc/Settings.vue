@@ -97,15 +97,12 @@
 
     mounted() {
       var auth = firebase.auth();
-      var user = auth.currentUser
-
-      if(user != null) {
-        this.user.username = user.displayName;
-      }
       
       auth.onAuthStateChanged((user) => {
         if(user == null) {
           this.$router.push({ name: 'Homepage' });
+        } else {
+          this.user.username = firebase.auth().currentUser.displayName;
         }
       });
     },
