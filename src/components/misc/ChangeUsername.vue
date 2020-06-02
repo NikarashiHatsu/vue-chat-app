@@ -60,14 +60,16 @@
     
     methods: {
       changeUsername() {
-        var user = firebase.auth().currentUser;
-        user.updateProfile({
-          displayName: this.user.username
-        }).then(() => {
-          this.$router.push({ name: 'Homepage' });
-        }).catch((err) => {
-          alert(err);
-        });
+        if(this.user.username != '') {
+          var user = firebase.auth().currentUser;
+          user.updateProfile({
+            displayName: this.user.username
+          }).then(() => {
+            this.$router.push({ name: 'Homepage' });
+          }).catch((err) => {
+            alert(err);
+          });
+        }
       }
     }
   }
