@@ -29,7 +29,7 @@
         <div class="collapse navbar-collapse" id="navigations">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'Settings' }">{{ user.username }}</router-link>
+              <router-link class="nav-link" :to="{ name: 'Settings' }">Settings</router-link>
             </li>
           </ul>
         </div>
@@ -54,14 +54,6 @@
   export default {
     name: 'App',
 
-    data() {
-      return {
-        user: {
-          username: ''
-        }
-      }
-    },
-
     mounted() {
       firebase.auth().onAuthStateChanged((user) => {
         var navSignedIn = document.getElementById('signedInNavbar');
@@ -72,13 +64,11 @@
           navSignedIn.classList.remove('d-flex');
           navSignedOut.classList.add('d-flex');
           navSignedOut.classList.remove('d-none');
-          this.user.username = '';
         } else {
           navSignedIn.classList.add('d-flex');
           navSignedIn.classList.remove('d-none');
           navSignedOut.classList.add('d-none');
           navSignedOut.classList.remove('d-flex');
-          this.user.username = user.displayName;
         }
       });
     },
