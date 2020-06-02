@@ -15,6 +15,8 @@ import 'jquery'
 import 'popper.js'
 import 'bootstrap/js/src/index'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import '/srv/http/vue-chat-app/src/assets/css/style.css'
+
 
 Vue.config.productionTip = false
 Vue.use(Router);

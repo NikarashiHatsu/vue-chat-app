@@ -9,7 +9,7 @@
           </li>
           <hr />
           <li>
-            <router-link :to="{ name: 'Login' }">Login</router-link>
+            <router-link :to="{ name: 'Login' }">inLog</router-link>
           </li>
           <li>
             <router-link :to="{ name: 'Register' }">Register</router-link>
