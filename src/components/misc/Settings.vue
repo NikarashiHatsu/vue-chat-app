@@ -28,7 +28,7 @@
               Photo (click to change)
             </div>
             <h5 class="mt-3 align-self-center">
-              Username
+              {{ user.username }}
             </h5>
           </div>
           <div class="list-group-item">
@@ -49,12 +49,12 @@
               Change password
             </span>
           </div>
-          <div class="list-group-item">
+          <button @click="logout" class="list-group-item btn btn-outline-danger text-left">
             <i class="fas fa-sign-out-alt"></i>
             <span class="ml-3">
               Logout
             </span>
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -82,3 +82,35 @@
     </div>
   </div>
 </template>
+
+<script>
+  import firebase from 'firebase';
+
+  export default {
+    name: 'Settings',
+
+    data() {
+      return {
+        user: {
+          username: ''
+        }
+      }
+    },
+
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user == null) {
+          this.$router.push({ name: 'Homepage' });
+        } else {
+          this.user.username = user.displayName;
+        }
+      });
+    },
+    
+    methods: {
+      logout() {
+        firebase.auth().signOut();
+      }
+    }
+  }
+</script>
