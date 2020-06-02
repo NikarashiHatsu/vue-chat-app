@@ -4,7 +4,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            Please re-input your current credential before continuing
+            Please re-input your current credential before continuing. Your account will be signed out, then please sign back in using your new credential.
           </div>
           <div class="modal-body">
             <form @submit="$event.preventDefault()">
@@ -92,7 +92,9 @@
     
     methods: {
       openModal() {
-        $('#reauthenticationModal').modal('show');
+        if(this.user.email != '') {
+          $('#reauthenticationModal').modal('show');
+        }
       },
       
       changeEmail() {
@@ -102,37 +104,34 @@
           this.user.password
         );
         
-        if(this.user.email != '') {
-          user.reauthenticateWithCredential(credential).then(() => {
-            
-            var auth = firebase.auth();
-            
-            auth.currentUser.updateEmail(this.user.email).then(() => {
-              $('#reauthenticationModal').modal('hide');
-              auth.signOut();
-            }).catch((err) => {
-              var errCode = err.code;
-              var errMsg = err.message;
-
-              switch (errCode) {
-                case 'auth/invalid-email':
-                  alert('Your old email is not valid');
-                  break;
-              
-                case 'auth/wrong-password':
-                  alert('Your password is not valid');
-                  break;
-
-                default:
-                  alert(errMsg);
-                  break;
-              }
-            });
-
+        user.reauthenticateWithCredential(credential).then(() => {
+          var auth = firebase.auth();
+          
+          auth.currentUser.updateEmail(this.user.email).then(() => {
+            $('#reauthenticationModal').modal('hide');
+            auth.signOut();
           }).catch((err) => {
-            alert(err);
+            var errCode = err.code;
+            var errMsg = err.message;
+
+            switch (errCode) {
+              case 'auth/invalid-email':
+                alert('Your old email is not valid');
+                break;
+            
+              case 'auth/wrong-password':
+                alert('Your password is not valid');
+                break;
+
+              default:
+                alert(errMsg);
+                break;
+            }
           });
-        }
+
+        }).catch((err) => {
+          alert(err);
+        });
       }
     }
   }
