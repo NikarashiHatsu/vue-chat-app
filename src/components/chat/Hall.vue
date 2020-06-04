@@ -11,16 +11,6 @@
   -->
   <div class="row">
     <div class="col-12">
-      <div class="alert alert-warning alert-dismissible fade show">
-        <span>
-          The UI below is just an experimental
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-    <div class="col-12">
       <div class="row justify-content-center">
         <div class="col-12 col-lg-6">
           <div class="card">
@@ -51,13 +41,47 @@
               </button>
             </div>
             <div class="card-footer">
-              <button class="btn btn-info">
+              <button class="btn btn-info" data-toggle="modal" data-target="#newGroupChatModal">
                 <i class="fas fa-users"></i>
                 <span class="ml-3">
                   New group chat
                 </span>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="newGroupChatModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            New Group Chat
+          </div>
+          <div class="modal-body">
+            <div class="form-group my-0">
+              <label for="groupChatName">Group Chat Name</label>
+              <input v-model="groupChat.name" type="text" id="groupChatName" class="form-control">
+            </div>
+          </div>
+          <div class="list-group">
+            <div v-for="(user, index) in userList" :key="index" class="list-group-item d-flex flex-direction-column justify-content-between">
+              <div>
+                <i class="fas fa-user"></i>
+                <span class="ml-3">
+                  {{ user.username }}
+                </span>
+              </div>
+              <div class="custom-control custom-checkbox">
+                <input v-model="groupChat.participants" type="checkbox" class="custom-control-input" :id="index" :value="user.username">
+                <label class="custom-control-label" :for="index"></label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="makeGroupChat" class="btn btn-success">
+              Create group chat with {{ groupChat.participants.length }} users
+            </button>
           </div>
         </div>
       </div>
@@ -74,7 +98,12 @@
     data() {
       return {
         user: '',
-        rooms: []
+        rooms: [],
+        userList: [],
+        groupChat: {
+          name: '',
+          participants: [],
+        }
       }
     },
     
@@ -86,6 +115,7 @@
         } else {
           this.user = user.displayName;
 
+          // Chatroom
           firebase.database().ref('users').on('value', (snapshot) => {
             var tempRoom = [];
 
@@ -94,8 +124,26 @@
                 tempRoom.push({
                   type: 'user',
                   username: data.val().username,
-                }); 
+                });
+
+                this.userList.push({
+                  username: data.val().username,
+                });
               }
+            });
+
+            // Group
+            firebase.database().ref('chatgroup').on('value', (snapshot) => {
+              snapshot.forEach((data) => {
+                data.child('users').forEach((user) => {
+                  if(user.val().name === this.user) {
+                    tempRoom.push({
+                      type: 'group',
+                      groupName: data.key,
+                    });
+                  }
+                });
+              });
             });
 
             this.rooms = tempRoom;
@@ -131,7 +179,25 @@
           }
           
         });
-      }
+      },
+
+      makeGroupChat() {
+        this.groupChat.participants.forEach((d) => {
+          firebase.database().ref('chatgroup/' + this.groupChat.name + '/users').push({
+            name: d
+          });
+        });
+
+        firebase.database().ref('chatgroup/' + this.groupChat.name + '/users').push({
+          name: this.user
+        });
+        
+        firebase.database().ref('chatgroup/' + this.groupChat.name + '/messages').push({
+          date: new Date().toISOString(),
+          type: 'starting',
+          text: 'Group chat started on ' + new Date().toISOString(),
+        });
+      },
     }
   }
 </script>
