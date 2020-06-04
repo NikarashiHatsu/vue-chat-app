@@ -22,12 +22,15 @@
 
       <!-- Signed in navbar -->
       <div class="container" id="signedInNavbar">
-        <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Ngetes</router-link>
+        <router-link :to="{ name: 'Homepage' }" class="navbar-brand">Firebase Chat App</router-link>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigations">
           <i class="fas fa-bars"></i>
         </button>
         <div class="collapse navbar-collapse" id="navigations">
           <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <router-link class="nav-link" :to="{ name: 'Hall' }">Chat Hall</router-link>
+            </li>
             <li class="nav-item">
               <router-link class="nav-link" :to="{ name: 'Settings' }">Settings</router-link>
             </li>

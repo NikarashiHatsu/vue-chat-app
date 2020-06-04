@@ -1,15 +1,4 @@
 <template>
-  <!-- Homepage content here -->
-  <!-- 
-    TODO:
-    1. Change the introductory to proper app introduction
-    2. Move the introduction to about page
-    DONE:
-    1. Create a navbar with register and login page.
-    REMOVED:
-    1. Fill the homepage with chat, use https://chattusa.com/ as reference.
-    2. You may use other chat room homepage reference other than Chatussa.
-  -->
   <div class="row justify-content-center">
     <div class="col-12 col-lg-6">
       <div class="card">

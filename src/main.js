@@ -5,7 +5,6 @@ import App from './App.vue'
 import Homepage from './components/Homepage'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
-import Forgot from './components/auth/Forgot'
 import Hall from './components/chat/Hall'
 import Chat from './components/chat/Chat'
 import GroupChat from './components/chat/GroupChat'
@@ -40,11 +39,6 @@ const router = new Router({
       path: '/register',
       name: 'Register',
       component: Register
-    },
-    {
-      path: '/forgot',
-      name: 'Forgot',
-      component: Forgot
     },
     {
       path: '/hall',

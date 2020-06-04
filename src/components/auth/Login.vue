@@ -28,9 +28,6 @@
               <button @click="login" type="submit" class="btn btn-primary">
                 Bring me to your world!
               </button>
-              <small>
-                Oh no, <router-link :to="{ name: 'Forgot' }">I forgot my password!</router-link>
-              </small>
             </div>
           </form>
         </div>

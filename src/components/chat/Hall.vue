@@ -1,25 +1,5 @@
 <template>
-  <!-- Hall content here -->
-  <!--
-    TODO:
-    1. Make 'add friend' feature using the user ID
-    2. Make new chat dialog
-    3. Make new group chat dialog
-    DONE:
-    1. Make a template of the chat hall. Use WhatsApp starting-up web as a reference (the page that shows up after you logged in and have not open any chat). This consists:
-      a. Friend list
-  -->
   <div class="row">
-    <div class="col-12">
-      <div class="alert alert-warning alert-dismissible fade show">
-        <span>
-          The UI below is just an experimental
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
     <div class="col-12">
       <div class="row justify-content-center">
         <div class="col-12 col-lg-6">
@@ -27,43 +7,27 @@
             <div class="card-header">
               <i class="fas fa-users"></i>
               <span class="ml-3">
-                Friends
+                User list
               </span>
             </div>
             <div class="list-group list-group-flush">
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_1' } }">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  NikarashiHatsu
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_2' } }">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  ShirakamiFubuki
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_3' } }">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  KujouKaren
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'GroupChat', params: { groupId: 'group_1' } }">
-                <i class="fas fa-users"></i>
-                <span class="ml-3">
-                  Hatsucorp
-                </span>
-              </router-link>
+              <div v-for="(room, index) in rooms" :key="index">
+                <button v-if="room.type == 'user'" @click="startChat(room.username)" class="list-group-item btn btn-outline-success text-left w-100">
+                  <i class="fa fa-user"></i>
+                  <span class="ml-3">
+                    {{ room.username }}
+                  </span>
+                </button>
+                <button v-else @click="startGroupChat(room.groupName)" class="list-group-item btn btn-outline-success text-left w-100">
+                  <i class="fa fa-users"></i>
+                  <span class="ml-3">
+                    {{ room.groupName }}
+                  </span>
+                </button>
+              </div>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  New chat
-                </span>
-              </button>
-              <button class="btn btn-info ml-3">
+              <button class="btn btn-info" data-toggle="modal" data-target="#newGroupChatModal">
                 <i class="fas fa-users"></i>
                 <span class="ml-3">
                   New group chat
@@ -74,10 +38,45 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="newGroupChatModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            New Group Chat
+          </div>
+          <div class="modal-body">
+            <div class="form-group my-0">
+              <label for="groupChatName">Group Chat Name</label>
+              <input v-model="groupChat.name" type="text" id="groupChatName" class="form-control">
+            </div>
+          </div>
+          <div class="list-group">
+            <div v-for="(user, index) in userList" :key="index" class="list-group-item d-flex flex-direction-column justify-content-between">
+              <div>
+                <i class="fas fa-user"></i>
+                <span class="ml-3">
+                  {{ user.username }}
+                </span>
+              </div>
+              <div class="custom-control custom-checkbox">
+                <input v-model="groupChat.participants" type="checkbox" class="custom-control-input" :id="index" :value="user.username">
+                <label class="custom-control-label" :for="index"></label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="makeGroupChat" class="btn btn-success">
+              Create group chat with {{ groupChat.participants.length }} users
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+  import $ from 'jquery';
   import firebase from 'firebase';
 
   export default {
@@ -85,70 +84,114 @@
     
     data() {
       return {
-        rooms: []
+        user: '',
+        rooms: [],
+        userList: [],
+        groupChat: {
+          name: '',
+          participants: [],
+        }
       }
     },
     
-    // TODO: MAKE AUTHENTICATED USER VARIABLE VALUE AS FIREBASE AUTHENTICATED USER
     mounted() {
-      // CHATGROUP
-      firebase.database().ref('chatgroup').on('value', (snapshot) => {
-        var filteredGroups = [];
-        var authenticatedUser = 'aghitsnidallah';
+      // Send to homepage if user is not logged in
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user == null) {
+          this.$router.push({ name: 'Homepage' });
+        } else {
+          this.user = user.displayName;
 
-        snapshot.forEach((data) => {
-          var users = Object.entries(data.val().users);
-          var template = {
-            group: '',
-            unread: 0
-          }
-          
-          // Decide a group name
-          users.forEach((key) => {
-            if(key[1] === authenticatedUser) {
-              template.group = data.key;
-            }
-          });
+          // Chatroom
+          firebase.database().ref('users').on('value', (snapshot) => {
+            var tempRoom = [];
 
-          // Count unread message
-          if(data.hasChild('messages')) {
-            var unread = data.val().messages.filter((d) => {
-              return d.read === 0;
+            snapshot.forEach((data) => {
+              if(data.val().username != user.displayName) {
+                tempRoom.push({
+                  type: 'user',
+                  username: data.val().username,
+                });
+
+                this.userList.push({
+                  username: data.val().username,
+                });
+              }
             });
 
-            template.unread = unread.length;
-          }
-
-          filteredGroups.push(template);
-        });
-      });
-      
-      // CHATROOM
-      firebase.database().ref('chatroom').on('value', (snapshot) => {
-        var filteredRooms = [];
-        var authenticatedUser = '';
-
-        snapshot.forEach((data) => {
-          if(data.val().sender == authenticatedUser) {
-            var template = {
-              receiver: data.val().receiver,
-              unread: 0
-            }
-  
-            if(data.hasChild('messages')) {
-              var unread = data.val().messages.filter((d) => {
-                return d.read == 0;
+            // Group
+            firebase.database().ref('chatgroup').on('value', (snapshot) => {
+              snapshot.forEach((data) => {
+                data.child('users').forEach((user) => {
+                  if(user.val().name === this.user) {
+                    tempRoom.push({
+                      type: 'group',
+                      groupName: data.key,
+                    });
+                  }
+                });
               });
-  
-              template.unread = unread.length;
-            }
-  
-            filteredRooms.push(template);
+            });
+
+            this.rooms = tempRoom;
+          });
+        }
+      });
+    },
+
+    methods: {
+      startChat(username) {
+        var database = firebase.database();
+
+        database.ref('chatroom/' + this.user + '-' + username).once('value').then((sn) => {
+
+          if(sn.val() == null) {
+            database.ref('chatroom/' + username + '-' + this.user).once('value').then((sn) => {
+              
+              if(sn.val() == null) {
+                database.ref('chatroom/' + this.user + '-' + username).push({
+                  date: new Date().toISOString(),
+                  type: 'startdate',
+                  text: 'Chat started on ' + new Date().toISOString(),
+                }).then(() => {
+                  this.$router.push({ name: 'Chat', params: { chatId: username }});
+                })
+              } else {
+                this.$router.push({ name: 'Chat', params: { chatId: username }});
+              }
+
+            });
+          } else {
+            this.$router.push({ name: 'Chat', params: { chatId: username }});
           }
+          
+        });
+      },
+
+      startGroupChat(groupname) {
+        this.$router.push({ name: 'GroupChat', params: { groupId: groupname }});
+      },
+
+      makeGroupChat() {
+        this.groupChat.participants.forEach((d) => {
+          firebase.database().ref('chatgroup/' + this.groupChat.name + '/users').push({
+            name: d
+          });
         });
 
-        this.rooms = filteredRooms;
-      });
+        firebase.database().ref('chatgroup/' + this.groupChat.name + '/users').push({
+          name: this.user
+        });
+        
+        firebase.database().ref('chatgroup/' + this.groupChat.name + '/messages').push({
+          date: new Date().toISOString(),
+          type: 'startdate',
+          text: 'Group chat started on ' + new Date().toISOString(),
+        });
+
+        $('#newGroupChatModal').modal('hide');
+        this.$router.push({ name: 'GroupChat', params: { groupId: this.groupChat.name }});
+      },
     }
   }
 </script>
