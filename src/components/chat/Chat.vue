@@ -1,11 +1,4 @@
 <template>
-  <!-- Chat content here -->
-  <!--
-    TODO:
-    1. Make a form validation
-    DONE:
-    1. Make a template of the personal chat room. Use Facebook Messenger as a reference
-  -->
   <div class="row justify-content-center">
     <div class="col-12 col-lg-8 mt-3">
       <div class="card">
@@ -120,15 +113,19 @@
 
     methods: {
       sendMessage() {
-        var database = firebase.database();
-
-        database.ref('chatroom/' + this.chatroom).push({
-          date: new Date().toISOString(),
-          sender: this.sender,
-          text: this.text,
-        }).then(() => {
-          this.text = '';
-        });
+        if(this.text == '') {
+          alert('The message is empty!');
+        } else {
+          var database = firebase.database();
+  
+          database.ref('chatroom/' + this.chatroom).push({
+            date: new Date().toISOString(),
+            sender: this.sender,
+            text: this.text,
+          }).then(() => {
+            this.text = '';
+          });
+        }
       }
     }
   }
