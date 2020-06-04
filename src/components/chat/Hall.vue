@@ -31,13 +31,24 @@
               </span>
             </div>
             <div class="list-group list-group-flush">
-              <router-link v-for="(room, index) in rooms" :key="index" :to="{ name: 'Chat', params: { chatId: room.id } }" class="list-group-item btn btn-outline-success text-left">
-                <i v-if="room.type == 'user'" class="fa fa-user"></i>
-                <i v-else class="fa fa-users"></i>
-                <span class="ml-3">
-                  {{ room.username }}
-                </span>
-              </router-link>
+              <button
+                v-for="(room, index) in rooms" 
+                :key="index" 
+                @click="startChat(room.username)"
+                class="list-group-item btn btn-outline-success text-left">
+                <div v-if="room.type == 'user'" >
+                  <i class="fa fa-user"></i>
+                  <span class="ml-3">
+                    {{ room.username }}
+                  </span>
+                </div>
+                <div v-else>
+                  <i class="fa fa-users"></i>
+                  <span class="ml-3">
+                    {{ room.groupName }}
+                  </span>
+                </div>
+              </button>
             </div>
             <div class="card-footer">
               <button class="btn btn-info">
@@ -62,9 +73,7 @@
     
     data() {
       return {
-        user: {
-          username: ''
-        },
+        user: '',
         rooms: []
       }
     },
@@ -75,14 +84,14 @@
         if(user == null) {
           this.$router.push({ name: 'Homepage' });
         } else {
-          // Chatroom
+          this.user = user.displayName;
+
           firebase.database().ref('users').on('value', (snapshot) => {
             var tempRoom = [];
 
             snapshot.forEach((data) => {
               if(data.val().username != user.displayName) {
                 tempRoom.push({
-                  id: data.key,
                   type: 'user',
                   username: data.val().username,
                 }); 
@@ -93,6 +102,36 @@
           });
         }
       });
+    },
+
+    methods: {
+      startChat(username) {
+        var database = firebase.database();
+
+        database.ref('chatroom/' + this.user + '-' + username).once('value').then((sn) => {
+
+          if(sn.val() == null) {
+            database.ref('chatroom/' + username + '-' + this.user).once('value').then((sn) => {
+              
+              if(sn.val() == null) {
+                database.ref('chatroom/' + this.user + '-' + username).push({
+                  date: new Date().toISOString(),
+                  type: 'startdate',
+                  text: 'Chat started on ' + new Date().toISOString(),
+                }).then(() => {
+                  this.$router.push({ name: 'Chat', params: { chatId: username }});
+                })
+              } else {
+                this.$router.push({ name: 'Chat', params: { chatId: username }});
+              }
+
+            });
+          } else {
+            this.$router.push({ name: 'Chat', params: { chatId: username }});
+          }
+          
+        });
+      }
     }
   }
 </script>
