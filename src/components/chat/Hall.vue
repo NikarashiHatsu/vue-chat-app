@@ -76,6 +76,7 @@
 </template>
 
 <script>
+  import $ from 'jquery';
   import firebase from 'firebase';
 
   export default {
@@ -184,9 +185,12 @@
         
         firebase.database().ref('chatgroup/' + this.groupChat.name + '/messages').push({
           date: new Date().toISOString(),
-          type: 'starting',
+          type: 'startdate',
           text: 'Group chat started on ' + new Date().toISOString(),
         });
+
+        $('#newGroupChatModal').modal('hide');
+        this.$router.push({ name: 'GroupChat', params: { groupId: this.groupChat.name }});
       },
     }
   }
