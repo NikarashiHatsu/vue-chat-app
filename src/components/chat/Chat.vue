@@ -7,69 +7,39 @@
     1. Make a template of the personal chat room. Use Facebook Messenger as a reference
   -->
   <div class="row justify-content-center">
-    <div class="col-12">
-      <div class="alert alert-warning alert-dismissible fade show">
-        <span>
-          The UI below is just an experimental
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
     <div class="col-12 col-lg-8 mt-3">
       <div class="card">
         <div class="card-header d-flex justify-content-between">
           <router-link :to="{ name: 'Hall' }">
             <i class="fas fa-arrow-left"></i>
           </router-link>
-          <span>
-            Chat page w/ <i>User</i> <!-- Change the user to real nickname -->
-          </span>
+          <div>
+            <span>Chat w/ </span>
+            <span>{{ receiver }}</span>
+          </div>
         </div>
         <div class="card-body pb-0">
           <!-- START LOOP -->
-          <div class="row">
-            <div class="col">
-              <div class="alert alert-secondary w-75">
-                <p class="uppercase font-weight-bold small my-0">
-                  NikarashiHatsu
-                </p>
-                <hr class="my-2">
-                <p class="my-0">Hello!</p>
+          <div v-for="(chat, index) in chats" :key="index" class="row">
+            <div v-if="chat.sender === receiver" class="col">
+              <div class="alert alert-secondary p-2 px-3 w-75">
+                <div class="small text-uppercase font-weight-bold">{{ chat.sender }}</div>
+                <hr class="my-2" />
+                <span>
+                  {{ chat.text }}
+                </span>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col d-flex justify-content-end">
-              <div class="alert alert-success w-75">
-                <p class="uppercase font-weight-bold small my-0">
-                  AghitsNidallah
-                </p>
-                <hr class="my-2">
-                <p class="my-0">Hello, too!</p>
-              </div>
+            <div v-else-if="chat.type === 'startdate'" class="col text-center mb-3">
+              {{ chat.text }}
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="alert alert-secondary w-75">
-                <p class="uppercase font-weight-bold small my-0">
-                  NikarashiHatsu
-                </p>
-                <hr class="my-2">
-                <p class="my-0">How are you?</p>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col d-flex justify-content-end">
-              <div class="alert alert-success w-75">
-                <p class="uppercase font-weight-bold small my-0">
-                  AghitsNidallah
-                </p>
-                <hr class="my-2">
-                <p class="my-0">I'm good, being a test subject isn't that bad I suppose!</p>
+            <div v-else class="col d-flex flex-row-reverse">
+              <div class="alert alert-success p-2 px-3 w-75">
+                <div class="small text-uppercase font-weight-bold">{{ chat.sender }}</div>
+                <hr class="my-2" />
+                <span>
+                  {{ chat.text }}
+                </span>
               </div>
             </div>
           </div>
@@ -79,10 +49,10 @@
           <form class="form justify-content-between" @submit="$event.preventDefault()">
             <div class="row">
               <div class="col pr-0">
-                <input class="form-control" type="text" placeholder="Write some message here">
+                <input v-model="text" class="form-control" type="text" placeholder="Write some message here">
               </div>
               <div class="col-auto pl-0">
-                <button type="submit" class="btn btn-primary ml-3">
+                <button @click="sendMessage" type="submit" class="btn btn-primary ml-3">
                   <i class="fas fa-paper-plane"></i>
                 </button>
               </div>
@@ -99,29 +69,67 @@
 
   export default {
     name: 'Chat',
+    
     data() {
       return {
-        conversation: {
-          receiver: '',
-          chats: [],
-          text: ''
-        }
+        sender: '',
+        receiver: this.$route.params.chatId,
+        chatroom: '',
+        chats: [],
+        text: '',
       }
     },
-    
-    // TODO: MAKE AUTHENTICATED USER VARIABLE VALUE AS FIREBASE AUTHENTICATED USER
-    mounted() {
-      firebase.database().ref('chatroom/' + this.$route.params.chatId).on('value', (snapshot) => {
-        var authenticatedUser = '';
-        var data = snapshot.val();
 
-        if(data.sender === authenticatedUser) {
-          this.conversation.chats = data.messages.filter((e) => {
-            return e;
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user == null) {
+          this.$route.push({ name: 'Homepage' });
+        } else {
+          this.sender = firebase.auth().currentUser.displayName;
+
+          var database = firebase.database();
+
+          database.ref('chatroom/' + this.sender + '-' + this.receiver).on('value', (snapshot) => {
+            var tempChats = [];
+            
+            if(snapshot.val() != null) {
+              snapshot.forEach((d) => {
+                tempChats.push(d.val());
+              });
+
+              this.chats = tempChats;
+              this.chatroom = this.sender + '-' + this.receiver;
+            }
           });
-          this.conversation.receiver = data.receiver;
+
+          database.ref('chatroom/' + this.receiver + '-' + this.sender).on('value', (snapshot) => {
+            var tempChats = [];
+            
+            if(snapshot.val() != null) {
+              snapshot.forEach((d) => {
+                tempChats.push(d.val());
+              });
+
+              this.chats = tempChats;
+              this.chatroom = this.receiver + '-' + this.sender;
+            }
+          });
         }
       });
     },
+
+    methods: {
+      sendMessage() {
+        var database = firebase.database();
+
+        database.ref('chatroom/' + this.chatroom).push({
+          date: new Date().toISOString(),
+          sender: this.sender,
+          text: this.text,
+        }).then(() => {
+          this.text = '';
+        });
+      }
+    }
   }
 </script>
