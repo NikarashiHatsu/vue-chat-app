@@ -1,14 +1,4 @@
 <template>
-  <!-- Hall content here -->
-  <!--
-    TODO:
-    1. Make 'add friend' feature using the user ID
-    2. Make new chat dialog
-    3. Make new group chat dialog
-    DONE:
-    1. Make a template of the chat hall. Use WhatsApp starting-up web as a reference (the page that shows up after you logged in and have not open any chat). This consists:
-      a. Friend list
-  -->
   <div class="row">
     <div class="col-12">
       <div class="row justify-content-center">
