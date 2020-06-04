@@ -22,11 +22,12 @@
               <label for="newUsername">New username</label>
               <input v-model="user.username" type="text" id="newUsername" class="form-control" placeholder="New John Doe">
               <small class="form-text text-muted">You won't be abusing this feature aren't you?</small>
+              <small class="form-text text-danger">Changing username will erase all of your chat, are you sure you want to continue?</small>
             </div>
             <button @click="changeUsername()" class="btn btn-success">
               Give me my new identity!
             </button>
-            <router-link :to="{ name: 'Settings' }" class="btn btn-outline-danger ml-0 ml-lg-3">
+            <router-link :to="{ name: 'Settings' }" class="btn btn-outline-danger ml-3">
               Wait, don't!
             </router-link>
           </form>
