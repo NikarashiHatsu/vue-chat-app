@@ -27,43 +27,20 @@
             <div class="card-header">
               <i class="fas fa-users"></i>
               <span class="ml-3">
-                Friends
+                User list
               </span>
             </div>
             <div class="list-group list-group-flush">
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_1' } }">
-                <i class="fas fa-user"></i>
+              <router-link v-for="(room, index) in rooms" :key="index" :to="{ name: 'Chat', params: { chatId: room.id } }" class="list-group-item btn btn-outline-success text-left">
+                <i v-if="room.type == 'user'" class="fa fa-user"></i>
+                <i v-else class="fa fa-users"></i>
                 <span class="ml-3">
-                  NikarashiHatsu
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_2' } }">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  ShirakamiFubuki
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'Chat', params: { chatId: 'chat_3' } }">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  KujouKaren
-                </span>
-              </router-link>
-              <router-link class="list-group-item" :to="{ name: 'GroupChat', params: { groupId: 'group_1' } }">
-                <i class="fas fa-users"></i>
-                <span class="ml-3">
-                  Hatsucorp
+                  {{ room.username }}
                 </span>
               </router-link>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary">
-                <i class="fas fa-user"></i>
-                <span class="ml-3">
-                  New chat
-                </span>
-              </button>
-              <button class="btn btn-info ml-3">
+              <button class="btn btn-info">
                 <i class="fas fa-users"></i>
                 <span class="ml-3">
                   New group chat
@@ -85,69 +62,36 @@
     
     data() {
       return {
+        user: {
+          username: ''
+        },
         rooms: []
       }
     },
     
-    // TODO: MAKE AUTHENTICATED USER VARIABLE VALUE AS FIREBASE AUTHENTICATED USER
     mounted() {
-      // CHATGROUP
-      firebase.database().ref('chatgroup').on('value', (snapshot) => {
-        var filteredGroups = [];
-        var authenticatedUser = 'aghitsnidallah';
+      // Send to homepage if user is not logged in
+      firebase.auth().onAuthStateChanged((user) => {
+        if(user == null) {
+          this.$router.push({ name: 'Homepage' });
+        } else {
+          // Chatroom
+          firebase.database().ref('users').on('value', (snapshot) => {
+            var tempRoom = [];
 
-        snapshot.forEach((data) => {
-          var users = Object.entries(data.val().users);
-          var template = {
-            group: '',
-            unread: 0
-          }
-          
-          // Decide a group name
-          users.forEach((key) => {
-            if(key[1] === authenticatedUser) {
-              template.group = data.key;
-            }
-          });
-
-          // Count unread message
-          if(data.hasChild('messages')) {
-            var unread = data.val().messages.filter((d) => {
-              return d.read === 0;
+            snapshot.forEach((data) => {
+              if(data.val().username != user.displayName) {
+                tempRoom.push({
+                  id: data.key,
+                  type: 'user',
+                  username: data.val().username,
+                }); 
+              }
             });
 
-            template.unread = unread.length;
-          }
-
-          filteredGroups.push(template);
-        });
-      });
-      
-      // CHATROOM
-      firebase.database().ref('chatroom').on('value', (snapshot) => {
-        var filteredRooms = [];
-        var authenticatedUser = '';
-
-        snapshot.forEach((data) => {
-          if(data.val().sender == authenticatedUser) {
-            var template = {
-              receiver: data.val().receiver,
-              unread: 0
-            }
-  
-            if(data.hasChild('messages')) {
-              var unread = data.val().messages.filter((d) => {
-                return d.read == 0;
-              });
-  
-              template.unread = unread.length;
-            }
-  
-            filteredRooms.push(template);
-          }
-        });
-
-        this.rooms = filteredRooms;
+            this.rooms = tempRoom;
+          });
+        }
       });
     }
   }
