@@ -11,24 +11,20 @@
               </span>
             </div>
             <div class="list-group list-group-flush">
-              <button
-                v-for="(room, index) in rooms" 
-                :key="index" 
-                @click="startChat(room.username)"
-                class="list-group-item btn btn-outline-success text-left">
-                <div v-if="room.type == 'user'" >
+              <div v-for="(room, index) in rooms" :key="index">
+                <button v-if="room.type == 'user'" @click="startChat(room.username)" class="list-group-item btn btn-outline-success text-left w-100">
                   <i class="fa fa-user"></i>
                   <span class="ml-3">
                     {{ room.username }}
                   </span>
-                </div>
-                <div v-else>
+                </button>
+                <button v-else @click="startGroupChat(room.groupName)" class="list-group-item btn btn-outline-success text-left w-100">
                   <i class="fa fa-users"></i>
                   <span class="ml-3">
                     {{ room.groupName }}
                   </span>
-                </div>
-              </button>
+                </button>
+              </div>
             </div>
             <div class="card-footer">
               <button class="btn btn-info" data-toggle="modal" data-target="#newGroupChatModal">
@@ -169,6 +165,10 @@
           }
           
         });
+      },
+
+      startGroupChat(groupname) {
+        this.$router.push({ name: 'GroupChat', params: { groupId: groupname }});
       },
 
       makeGroupChat() {
