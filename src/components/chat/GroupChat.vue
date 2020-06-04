@@ -94,15 +94,19 @@
 
     methods: {
       sendMessage() {
-        var database = firebase.database();
+        if(this.text == '') {
+          alert('The message is empty!');
+        } else {
+          var database = firebase.database();
 
-        database.ref('chatgroup/' + this.receiver + '/messages').push({
-          date: new Date().toISOString(),
-          sender: this.sender,
-          text: this.text,
-        }).then(() => {
-          this.text = '';
-        });
+          database.ref('chatgroup/' + this.receiver + '/messages').push({
+            date: new Date().toISOString(),
+            sender: this.sender,
+            text: this.text,
+          }).then(() => {
+            this.text = '';
+          });
+        }
       }
     }
   }
