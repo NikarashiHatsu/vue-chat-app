@@ -82,7 +82,12 @@
         const user = this.user;
         
         if((user.username != '' && user.email != '' && user.password != '' && user.confirmPassword != '') && (user.password === user.confirmPassword)) {
-          firebase.auth().createUserWithEmailAndPassword(user.email, user.password).catch((err) => {
+          firebase.auth().createUserWithEmailAndPassword(user.email, user.password).then(() => {
+            firebase.database().ref('users').push({
+              email: user.email,
+              username: user.username
+            });
+          }).catch((err) => {
             var errCode = err.code;
             var errMsg = err.message;
 
